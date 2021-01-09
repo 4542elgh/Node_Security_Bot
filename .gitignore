@@ -1,3 +1,4 @@
 node_modules/
 .env
 nodejs_blog_screenshot.jpg
+*.html

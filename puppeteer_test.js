@@ -1,9 +1,14 @@
+const fs = require('fs');
 const puppeteer = require('puppeteer');
 const url = 'https://nodejs.org/en/blog/';
+
 (async () => {
-    const browser = await puppeteer.launch();
+		const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    const response = await page.goto(url)
+		const response = await page.goto(url);
+		// const response = await page.goto('file://C:/Users/Evan/Desktop/New\ folder/index.html');
+		
+		fs.writeFileSync("index.html", await response.text())
 
     // Example: Taking a screenshot
     // await page.screenshot({path: 'nodejs_blog_screenshot.png'});
@@ -16,8 +21,6 @@ const url = 'https://nodejs.org/en/blog/';
         return element.textContent;
       }, (await page.$x('//*[@id="main"]/div/ul/li[1]/a'))[0]);
     console.log(example);
-
-
 
     await browser.close();
 }) ();

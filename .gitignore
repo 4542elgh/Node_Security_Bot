@@ -3,3 +3,4 @@ node_modules/
 nodejs_blog_screenshot.jpg
 *.html
 objects.txt
+*.json

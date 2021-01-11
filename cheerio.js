@@ -68,21 +68,31 @@ $("ul.blog-index")
 
     $($(this).children()[2])
       .children()
-
       // This remove the "Read more..." button which appear on every blog entry
       .slice(0, -1)
       .each(function () {
+
         // This determine if there are nested list
-        console.log($(this).children().length);
+        const is_nested = $(this).children().length > 0 ? true : false;
+        console.log(`Nested list exists: ${is_nested}`);
 
-        // TODO, find a way to iterate if there is nested list
+        // Iterate through list if it exists
+        if (is_nested) {
 
-        // let text = $(this).text().trim().replace("\n", " ");
-        let text = $(this).text().trim().replace(/\s\s+/g, " ");
-        console.log(text);
-        if (!text.includes("Read more")) {
-          description += text;
+          // Reset description string
+          description = ''
+
+          // TODO Iterate through list and append results to description
+          // description += $(this).children().text();
+          description += 'nested list text...'
+
+        } else {
+          let text = $(this).text().trim().replace(/\s\s+/g, " ");
+          if (!text.includes("Read more")) {
+            description += text;
+          }
         }
+        console.log(`description text: ${description}`);
       });
 
     console.log("");
@@ -145,7 +155,7 @@ announcements.forEach((a) => {
 
 /* 
 STEP 5
-Writing json data to text file
+Writing json data to file
 */
 
 // START OF STEP 5
@@ -156,7 +166,7 @@ const objects = {
 //
 
 // Writing objects in objs array to text file
-fs.writeFile("objects.txt", JSON.stringify(objects), function (err) {
+fs.writeFile("objects.json", JSON.stringify(objects), function (err) {
   if (err) {
     console.log(err);
   }

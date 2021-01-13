@@ -71,28 +71,23 @@ $("ul.blog-index")
       // This remove the "Read more..." button which appear on every blog entry
       .slice(0, -1)
       .each(function () {
-
         // This determine if there are nested list
         const is_nested = $(this).children().length > 0 ? true : false;
-        console.log(`Nested list exists: ${is_nested}`);
 
         // Iterate through list if it exists
         if (is_nested) {
-
-          // Reset description string
-          description = ''
-
-          // TODO Iterate through list and append results to description
-          // description += $(this).children().text();
-          description += 'nested list text...'
-
+          // Iterate through list and append text to description
+          $($(this).children()).each(function () {
+            // Appending list (<li>) text to description
+            description += $(this).text().replace(/\s\s+/g, " ");
+          });
         } else {
           let text = $(this).text().trim().replace(/\s\s+/g, " ");
           if (!text.includes("Read more")) {
             description += text;
           }
         }
-        console.log(`description text: ${description}`);
+        // console.log(`description text: ${description}`);
       });
 
     console.log("");
@@ -122,12 +117,6 @@ announcements.forEach((a) => {
     .find("div > div")
     .children()
     .each(function (i, element) {
-      // This will iterate through all elements within div
-      // const l = c(this).children()
-      // for(let x = 0; x < l.length; x++){
-      // 	console.log(c(l[x]).text())
-      // }
-
       // This is one level deeper than last commit. Correctly display blog title and title only
       const blog_title = c(c(c(this).children()[0]).children()[0]).text();
       const blog_author = c(c(c(this).children()[0]).children()[1])
@@ -137,7 +126,9 @@ announcements.forEach((a) => {
 
       const blog_subtitle = c(c(this).children()[1]).text().trim();
       const available = c(c(this).children()[2]).text().trim();
-      const issues = c(c(this).children()[3]).text().trim();
+
+      // TODO Remove \n from issues string
+      const issues = c(c(this).children()[3]).text().replace(/\s\s+/g, "");
 
       // object property shorthand
       const details = {

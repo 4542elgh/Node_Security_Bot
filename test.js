@@ -1,16 +1,22 @@
 // // Supply your own discord bot token in dotenv
-// require("dotenv").config();
-// const Discord = require("discord.js");
-// const client = new Discord.Client();
+require("dotenv").config();
+const Discord = require("discord.js");
+const client = new Discord.Client();
 // const CronJob = require("cron").CronJob;
 
-const db = require("./db.js");
+// const db = require("./db.js");
 
 // const prefix = "!";
 
-// client.on("ready", () => {
-//   console.log(`Logged in as ${client.user.tag}!`);
-// });
+client.on("ready", () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+  // console.log(client.channels)
+  client.channels.fetch(`${process.env.CHANNEL_ID}`).then(channel => {
+    // console.log(channel.name)
+    channel.send('Hello from nodeJS!')
+    channel.send(`This took me forever to figure out! <('.')>`)
+  })
+});
 
 // // When discord received a message
 // client.on("message", (msg) => {
@@ -23,7 +29,7 @@ const db = require("./db.js");
 // });
 
 // // Login with your discord token
-// client.login(`${process.env.D_TOKEN}`);
+client.login(`${process.env.D_TOKEN}`);
 
 // // Schedule the cron job
 // var job = new CronJob(
@@ -42,7 +48,7 @@ const db = require("./db.js");
 
 // job.start();
 
-const dbConnection = new db();
+// const dbConnection = new db();
 // Create database scheme with these 2 lines
 
 // dbConnection.createDatabase();
@@ -60,9 +66,9 @@ const dbConnection = new db();
 // ]);
 
 // Get output using this line
-dbConnection.showBlog(function (result) {
-  console.log(result);
-});
+// dbConnection.showBlog(function (result) {
+//   console.log(result);
+// });
 
 // Closing db connection
-dbConnection.close();
+// dbConnection.close();

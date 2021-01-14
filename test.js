@@ -52,10 +52,10 @@ const dbConnection = new db();
 //     title: "1",
 //     link: "1",
 //     description: "1",
+//     path: "1"
 //     author: "1",
 //     subtitle: "1",
-//     avilable: "1",
-//     issues: "1",
+//     available: "1"
 //   },
 // ]);
 

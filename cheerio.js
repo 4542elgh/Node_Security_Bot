@@ -1,6 +1,7 @@
 const request = require("request");
 const cheerio = require("cheerio");
 const fs = require("fs");
+const db = require("./db.js");
 
 /* 
 STEP 1
@@ -87,16 +88,13 @@ $("ul.blog-index")
             description += text;
           }
         }
-        // console.log(`description text: ${description}`);
       });
-
-    console.log("");
 
     const link = `https://nodejs.org${entry.attr("href")}`;
 
     // creating announcement
     const annoucement = {
-      id: i,
+      // id: i,
       announced: announced,
       title: title,
       link: link,
@@ -118,7 +116,7 @@ announcements.forEach((a) => {
     .children()
     .each(function (i, element) {
       // This is one level deeper than last commit. Correctly display blog title and title only
-      const blog_title = c(c(c(this).children()[0]).children()[0]).text();
+      // const blog_title = c(c(c(this).children()[0]).children()[0]).text();
       const blog_author = c(c(c(this).children()[0]).children()[1])
         .text()
         .substring(3) // remove the 'by ' string in the front
@@ -127,19 +125,11 @@ announcements.forEach((a) => {
       const blog_subtitle = c(c(this).children()[1]).text().trim();
       const available = c(c(this).children()[2]).text().trim();
 
-      // TODO Remove \n from issues string
-      const issues = c(c(this).children()[3]).text().replace(/\s\s+/g, "");
+      // Details;
+      a["author"] = blog_author
+      a["subtitle"] = blog_subtitle
+      a["available"] = available
 
-      // object property shorthand
-      const details = {
-        blog_title,
-        blog_author,
-        blog_subtitle,
-        available,
-        issues,
-      };
-
-      a["details"] = details;
     });
 });
 // // END OF STEP 4
@@ -151,17 +141,42 @@ Writing json data to file
 
 // START OF STEP 5
 // Preparing data for text file
-const objects = {
-  announcements,
-};
+// const objects = {
+//   announcements,
+// };
 //
 
-// Writing objects in objs array to text file
-fs.writeFile("objects.json", JSON.stringify(objects), function (err) {
-  if (err) {
-    console.log(err);
-  }
-});
+/*
+# Writing objects in objs array to text file
+# (1/13/2021) Only for testing purposes. It has been commented out due
+# to data being inserted to database
+*/
+
+// fs.writeFile("objects.json", JSON.stringify(objects), function (err) {
+//   if (err) {
+//     console.log(err);
+//   }
+// });
 // END OF STEP 5
 
-// console.log(objects.announcements[0].details.blog_title[0]);
+// Creating connection to database
+const dbConnection = new db();
+// Dropping table in order to update columns
+// dbConnection.dropTable()
+
+// Creating database with updated columns
+// dbConnection.createDatabase()
+
+// Inserting scraped announcements
+// dbConnection.insertIntoBlog(announcements)
+
+/* 
+# Displaying data in table
+# showBlog() only returns a single row when initially running data.
+*/
+
+// Displaying results
+dbConnection.showBlog(function (result) {
+  console.log(result)
+})
+

@@ -4,18 +4,28 @@ class db {
     this.dbconn = new this.sqlite3.Database("./db/blog.db");
   }
 
+  dropTable(){
+    let dbconnLocal = this.dbconn;
+    dbconnLocal.serialize(function () {
+      dbconnLocal.run(
+        "DROP TABLE IF EXISTS blogs"
+      )
+      console.log('blogs TABLE has been dropped')
+    })
+  }
+
   createDatabase() {
     let dbconnLocal = this.dbconn;
     dbconnLocal.serialize(function () {
       dbconnLocal.run(
-        "CREATE TABLE blogs (id INTEGER PRIMARY KEY AUTOINCREMENT, announced_date TEXT, title TEXT, link TEXT, description TEXT, author TEXT, subtitle TEXT, available TEXT, issues TEXT)"
+        "CREATE TABLE blogs (id INTEGER PRIMARY KEY AUTOINCREMENT, announced_date TEXT, title TEXT, link TEXT, description TEXT, path TEXT, author TEXT, subtitle TEXT, available TEXT)"
       );
     });
   }
 
   insertIntoBlog(inputArr) {
     var stmt = this.dbconn.prepare(
-      "INSERT INTO blogs ('announced_date' , 'title' , 'link' , 'description' , 'author' , 'subtitle' , 'available' , 'issues' ) VALUES (?,?,?,?,?,?,?,?)"
+      "INSERT INTO blogs ('announced_date' , 'title' , 'link' , 'description' , 'path' , 'author' , 'subtitle' , 'available') VALUES (?,?,?,?,?,?,?,?)"
     );
     for (var i = 0; i < inputArr.length; i++) {
       let keys = Object.keys(inputArr[i]);

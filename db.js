@@ -48,6 +48,16 @@ class db {
     });
   }
 
+  lastEntry(callback) {
+    this.dbconn.all("SELECT * FROM blogs ORDER BY ID DESC LIMIT 1;", function (err, rows) {
+      if(err) {
+        console.err("Something wrong happened")
+      } else {
+        callback(rows)
+      }
+    })
+  }
+
   close() {
     this.dbconn.close();
   }

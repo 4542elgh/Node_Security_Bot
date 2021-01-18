@@ -176,7 +176,35 @@ const dbConnection = new db();
 */
 
 // Displaying results
-dbConnection.showBlog(function (result) {
-  console.log(result)
+// dbConnection.showBlog(function (result) {
+//   console.log(result)
+// })
+
+let new_entries = 0
+const latest_entries = announcements.slice(0, 2)
+dbConnection.lastEntry(function (result) {
+  const last_entry = result[0]
+
+  latest_entries.forEach(entry => {
+    if(entry.title !== last_entry.title){
+      new_entries++
+    }
+  })
 })
+
+if(new_entries == 2){
+  console.log('update database')
+  dbConnection.insertIntoBlog(latest_entries)
+  console.log('Inserted new entries')
+}
+else {
+  console.log('No update necessary')
+}
+
+
+// arr.slice(Math.max(arr.length - 5, 0))
+
+// dbConnection.insertIntoBlog(new_entries)
+
+dbConnection.close()
 

@@ -80,12 +80,16 @@ const fetchBlogs = (sendToChannel) => {
           dbConnection.lastEntry(function (result) {
             const last_entry = result[0];
             if (a.title !== last_entry.title) {
-              console.log("update database");
+              // console.log("update database");
               // dbConnection.insertIntoBlog(latest_entries.slice(0, 1));
-              console.log("Inserted new entries");
-              sendToChannel(a.title);
+              // console.log("Inserted new entries");
+              const msg_header = yellow(`NEW ANNOUNCEMENT (${a.announced.trim()})`)
+              const msg = `${msg_header}\n- ${a.title.trim()}\n- ${a.subtitle.trim()}\n- Visit for more information\n  ${a.link.trim()}`
+              sendToChannel(msg)
+              // console.log(msg)
             } else {
-              console.log("No update necessary");
+              // console.log("No update necessary");
+              sendToChannel(`No new announcements available`)
             }
             dbConnection.close();
           });
@@ -94,5 +98,10 @@ const fetchBlogs = (sendToChannel) => {
     }
   });
 };
+
+function yellow(s){
+  const tilde = '```'
+  return `**${tilde}fix\n${s}\n${tilde}**`
+}
 
 module.exports = fetchBlogs;

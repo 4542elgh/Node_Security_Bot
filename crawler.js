@@ -1,6 +1,7 @@
 const request = require("request");
 const cheerio = require("cheerio");
 const db = require("./db.js");
+const { DiscordAPIError, MessageEmbed } = require("discord.js");
 
 // Export as function
 const fetchBlogs = (sendToChannel) => {
@@ -83,8 +84,15 @@ const fetchBlogs = (sendToChannel) => {
               // console.log("update database");
               // dbConnection.insertIntoBlog(latest_entries.slice(0, 1));
               // console.log("Inserted new entries");
-              const msg_header = yellow(`NEW ANNOUNCEMENT (${a.announced.trim()})`)
-              const msg = `${msg_header}\n- ${a.title.trim()}\n- ${a.subtitle.trim()}\n- Visit for more information\n  ${a.link.trim()}`
+              // const msg_header = yellow(`NEW ANNOUNCEMENT (${a.announced.trim()})`)
+              // const msg = `${msg_header}\n- ${a.title.trim()}\n- ${a.subtitle.trim()}\n- Visit for more information\n  ${a.link.trim()}`
+              const msg = new MessageEmbed()
+                .setTitle(a.title.trim())
+                .setURL(a.link.trim())
+                .setAuthor(a.author.trim())
+                .addField(a.subtitle.trim(), a.description.trim(), false)
+                .setTimestamp(new Date())
+                .setFooter('Brought to you by node.js version bot')
               sendToChannel(msg)
               // console.log(msg)
             } else {
@@ -99,9 +107,9 @@ const fetchBlogs = (sendToChannel) => {
   });
 };
 
-function yellow(s){
-  const tilde = '```'
-  return `**${tilde}fix\n${s}\n${tilde}**`
-}
+// function yellow(s){
+//   const tilde = '```'
+//   return `**${tilde}fix\n${s}\n${tilde}**`
+// }
 
 module.exports = fetchBlogs;

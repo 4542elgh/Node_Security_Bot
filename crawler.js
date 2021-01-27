@@ -16,7 +16,7 @@ const fetchBlogs = (sendToChannel) => {
           const announced = $($(this).children()[0]).text();
           const entry = $($(this).children()[1]);
           const title = entry.text();
-          let description = {};
+          let description = [];
 
           $($(this).children()[2])
             .children()
@@ -24,35 +24,36 @@ const fetchBlogs = (sendToChannel) => {
             .slice(0, -1)
             .each(function () {
               // This is for plain text of the description object
-              if (description["plaintext"] == undefined) {
-                description["plaintext"] = [];
-              }
-              let plaintext = $(this)
-                .contents()
-                .filter(function () {
-                  return this.type === "text";
-                })
-                .text();
 
-              if (
-                plaintext.includes("undefined") ||
-                plaintext.includes("\n") ||
-                plaintext == "" ||
-                plaintext == undefined
-              ) {
-              } else {
-                description["plaintext"].push(plaintext);
-              }
+              // let plaintext = $(this)
+              //   .contents()
+              //   .filter(function () {
+              //     return this.type === "text";
+              //   })
+              //   .text();
+
+              // if (
+              //   plaintext.includes("undefined") ||
+              //   plaintext.includes("\n") ||
+              //   plaintext == "" ||
+              //   plaintext == undefined
+              // ) {
+              // } else {
+              //   description["plaintext"].push(plaintext);
+              // }
 
               // Stores all text within post excluding first line and title
-              let bullets = $(this).contents()
-              .text()
-              .split(/[\r\n]+/).filter(words => words !== '')
+              let bullets = $(this)
+                .contents()
+                .text()
+                .split(/[\r\n]+/)
+                .filter((words) => words !== "");
 
-              console.log(bullets)
+              // console.log(bullets);
+              description.push(...bullets);
 
               // TODO parse strings to prepare them for message object
-              
+
               // ----------------------------------------
               // THIS IS THE OLD PARSER
               // ----------------------------------------
@@ -129,7 +130,36 @@ const fetchBlogs = (sendToChannel) => {
               // ----------------------------------------
             });
 
-          // console.log(description);
+          let cve = -1; // record the current cve index, this only apply to arrays with CVE as first 3 letter
+          let marker = -1; //record header plain text if CVE is present. Plain text will be from index 0 to first occurance of CVE string
+          description["sublist"] = [];
+          const descriptionObject = { sublist: [], header: [] };
+
+          description.forEach((item, index) => {
+            if (item.substring(0, 3) == "CVE") {
+              if (cve == -1) {
+                marker = index;
+              } else {
+                descriptionObject["sublist"].push(
+                  description.slice(cve, index).join("")
+                );
+              }
+
+              cve = index;
+            }
+
+            if (index == description.length - 1 && cve != -1) {
+              descriptionObject["sublist"].push(
+                description.slice(cve, description.length).join("")
+              );
+            }
+          });
+
+          if (marker != -1) {
+            descriptionObject["header"] = description.slice(0, marker);
+          }
+
+          console.log(descriptionObject);
 
           announcements.push({
             announced: announced,

@@ -20,20 +20,20 @@ const sendToChannel = (msg) => {
 client.login(`${process.env.D_TOKEN}`);
 
 // Schedule the cron job
-var job = new CronJob(
-  // Every hour "0 * * * *"
-  // Below is every 10 min
-  "*/10 * * * * *",
-  function () {
-    fetchBlog(sendToChannel);
-  },
+// var job = new CronJob(
+//   // Every hour "0 * * * *"
+//   // Below is every 10 min
+//   "*/10 * * * * *",
+//   function () {
+fetchBlog(sendToChannel);
+//   },
 
-  // Executing on complete
-  null,
+//   // Executing on complete
+//   null,
 
-  // Start when application launch
-  true,
-  "America/Los_Angeles"
-);
+//   // Start when application launch
+//   true,
+//   "America/Los_Angeles"
+// );
 
-job.start();
+// job.start();

@@ -44,8 +44,15 @@ const fetchBlogs = (sendToChannel) => {
                 description["plaintext"].push(plaintext);
               }
 
-              // TODO need to traverse through single level bullets and double level bullets
+              // Stores all text within post excluding first line and title
+              let bullets = $(this).contents()
+              .text()
+              .split(/[\r\n]+/).filter(words => words !== '')
 
+              console.log(bullets)
+
+              // TODO parse strings to prepare them for message object
+              
               // ----------------------------------------
               // THIS IS THE OLD PARSER
               // ----------------------------------------
@@ -122,7 +129,7 @@ const fetchBlogs = (sendToChannel) => {
               // ----------------------------------------
             });
 
-          console.log(description);
+          // console.log(description);
 
           announcements.push({
             announced: announced,

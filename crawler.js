@@ -16,30 +16,113 @@ const fetchBlogs = (sendToChannel) => {
           const announced = $($(this).children()[0]).text();
           const entry = $($(this).children()[1]);
           const title = entry.text();
-          let description = "";
+          let description = {};
 
           $($(this).children()[2])
             .children()
             // This remove the "Read more..." button which appear on every blog entry
             .slice(0, -1)
             .each(function () {
-              // This determine if there are nested list
-              const is_nested = $(this).children().length > 0 ? true : false;
-
-              // Iterate through list if it exists
-              if (is_nested) {
-                // Iterate through list and append text to description
-                $($(this).children()).each(function () {
-                  // Appending list (<li>) text to description
-                  description += $(this).text().replace(/\s\s+/g, " ");
-                });
-              } else {
-                let text = $(this).text().trim().replace(/\s\s+/g, " ");
-                if (!text.includes("Read more")) {
-                  description += text;
-                }
+              // This is for plain text of the description object
+              if (description["plaintext"] == undefined) {
+                description["plaintext"] = [];
               }
+              let plaintext = $(this)
+                .contents()
+                .filter(function () {
+                  return this.type === "text";
+                })
+                .text();
+
+              if (
+                plaintext.includes("undefined") ||
+                plaintext.includes("\n") ||
+                plaintext == "" ||
+                plaintext == undefined
+              ) {
+              } else {
+                description["plaintext"].push(plaintext);
+              }
+
+              // TODO need to traverse through single level bullets and double level bullets
+
+              // ----------------------------------------
+              // THIS IS THE OLD PARSER
+              // ----------------------------------------
+              // // This determine if there are nested list
+              // const is_nested = $(this).children().length > 0 ? true : false;
+
+              // // Iterate through list if it exists
+              // if (is_nested) {
+              //   let outerMostCounter = 0;
+              //   // Iterate through list and append text to description
+              //   $($(this).children()).each(function () {
+              //     const is_double_nested =
+              //       $(this).children().length > 0 ? true : false;
+
+              //     if (is_double_nested) {
+              //       let outerCounter = 0;
+              //       // is_double_nested = for 1 level bullet points in /en/blog/
+              //       $($(this).children()).each(function () {
+              //         const is_triple_nested =
+              //           $(this).children().length > 0 ? true : false;
+
+              //         if (is_triple_nested) {
+              //           // is_triple_nested = for 2 level bullet points in /en/blog/
+              //           $($(this).children()).each(function () {
+              //             // // This is in charge of double bullet
+              //             // This is used for naming description keys
+              //             // let parentEle = $(this).parent().parent().text().split("\n")[0]
+              //             // Format based on 'Vulnerabilities fixed', there are two formats even though they are both 2 level bullets
+              //             // if (description[title] == null) {
+              //             //   if (
+              //             //     $(this)
+              //             //       .parent()
+              //             //       .parent()
+              //             //       .parent()
+              //             //       .parent()
+              //             //       .parent()
+              //             //       .text()
+              //             //       .includes("Vulnerabilities fixed:")
+              //             //   ) {
+              //             //     description[title] = [];
+              //             //   } else {
+              //             //     description[title] = [$(this).text()];
+              //             //   }
+              //             // } else {
+              //             //   description[title].push($(this).text());
+              //             // }
+              //           });
+              //         } else {
+              //           // // this is in charge of single bullet
+              //           // if (description[title] == null) {
+              //           //   description[title] = [];
+              //           // } else {
+              //           //   description[title].push(
+              //           //     $(this).parent().text().trim()
+              //           //   );
+              //           // }
+              //         }
+              //       });
+              //     }
+              //   });
+              // } else {
+              //   // // else statement for if (nested)
+              //   // let text = $(this).text().trim().replace(/\s\s+/g, " ");
+              //   // if (!text.includes("Read more")) {
+              //   //   if (description[title] == null) {
+              //   //     description[title] = [text];
+              //   //   } else {
+              //   //     description[title].push(text);
+              //   //   }
+              //   // }
+              // }
+              // ----------------------------------------
+              // THIS IS THE OLD PARSER END
+              // ----------------------------------------
             });
+
+          console.log(description);
 
           announcements.push({
             announced: announced,
@@ -83,21 +166,17 @@ const fetchBlogs = (sendToChannel) => {
             if (a.title !== last_entry.title) {
               // console.log("update database");
               // dbConnection.insertIntoBlog(latest_entries.slice(0, 1));
-              // console.log("Inserted new entries");
-              // const msg_header = yellow(`NEW ANNOUNCEMENT (${a.announced.trim()})`)
-              // const msg = `${msg_header}\n- ${a.title.trim()}\n- ${a.subtitle.trim()}\n- Visit for more information\n  ${a.link.trim()}`
-              const msg = new MessageEmbed()
-                .setTitle(a.title.trim())
-                .setURL(a.link.trim())
-                .setAuthor(a.author.trim())
-                .addField(a.subtitle.trim(), a.description.trim(), false)
-                .setTimestamp(new Date())
-                .setFooter('Brought to you by node.js version bot')
-              sendToChannel(msg)
-              // console.log(msg)
+              // const msg = new MessageEmbed()
+              //   .setTitle(a.title.trim())
+              //   .setURL(a.link.trim())
+              //   .setAuthor(a.author.trim())
+              //   .addField(a.subtitle.trim(), a.description.trim(), false)
+              //   .setTimestamp(new Date())
+              //   .setFooter("Brought to you by node.js version bot");
+              // sendToChannel(msg);
             } else {
               // console.log("No update necessary");
-              sendToChannel(`No new announcements available`)
+              sendToChannel(`No new announcements available`);
             }
             dbConnection.close();
           });

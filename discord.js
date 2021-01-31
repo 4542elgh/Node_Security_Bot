@@ -1,17 +1,17 @@
-const { Discord, MessageEmbed } = require("discord.js");
-require("dotenv").config();
-
 class discord {
   constructor() {
-    this.client = new Discord.Client();
+    require("dotenv").config();
+    this.Discord = require("discord.js");
+
+    this.client = new this.Discord.Client();
     this.client.login(`${process.env.D_TOKEN}`);
     this.client.on("ready", () => {
-      console.log(`Logged in as ${client.user.tag}!`);
+      console.log(`Logged in as ${this.client.user.tag}!`);
     });
   }
 
   sendToChannel(msg) {
-    const outputMsg = new MessageEmbed()
+    const outputMsg = new this.Discord.MessageEmbed()
       .setTitle(msg.title.trim())
       .setURL(msg.link.trim())
       .setAuthor(msg.author.trim())
@@ -19,7 +19,7 @@ class discord {
       .setTimestamp(new Date())
       .setFooter("Brought to you by node.js blog bot");
 
-    client.channels.fetch(`${process.env.CHANNEL_ID}`).then((channel) => {
+    this.client.channels.fetch(`${process.env.CHANNEL_ID}`).then((channel) => {
       channel.send(outputMsg);
     });
   }

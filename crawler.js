@@ -2,9 +2,11 @@ const request = require("request");
 const cheerio = require("cheerio");
 const db = require("./db.js");
 const parser = require("./parser.js");
+const got = require("got");
 
 // Export as function
-const fetchBlogs = (sendToChannel) => {
+// const fetchBlogs = () => {
+const fetchBlogs = new Promise(function executor(resolve) {
   request("https://nodejs.org/en/blog", (err, res, html) => {
     if (!err && res.statusCode == 200) {
       const $ = cheerio.load(html);
@@ -31,141 +33,71 @@ const fetchBlogs = (sendToChannel) => {
                 .filter((words) => words !== "");
 
               description.push(...bullets);
-
-              // TODO parse strings to prepare them for message object
-
-              // ----------------------------------------
-              // THIS IS THE OLD PARSER
-              // ----------------------------------------
-              // // This determine if there are nested list
-              // const is_nested = $(this).children().length > 0 ? true : false;
-
-              // // Iterate through list if it exists
-              // if (is_nested) {
-              //   let outerMostCounter = 0;
-              //   // Iterate through list and append text to description
-              //   $($(this).children()).each(function () {
-              //     const is_double_nested =
-              //       $(this).children().length > 0 ? true : false;
-
-              //     if (is_double_nested) {
-              //       let outerCounter = 0;
-              //       // is_double_nested = for 1 level bullet points in /en/blog/
-              //       $($(this).children()).each(function () {
-              //         const is_triple_nested =
-              //           $(this).children().length > 0 ? true : false;
-
-              //         if (is_triple_nested) {
-              //           // is_triple_nested = for 2 level bullet points in /en/blog/
-              //           $($(this).children()).each(function () {
-              //             // // This is in charge of double bullet
-              //             // This is used for naming description keys
-              //             // let parentEle = $(this).parent().parent().text().split("\n")[0]
-              //             // Format based on 'Vulnerabilities fixed', there are two formats even though they are both 2 level bullets
-              //             // if (description[title] == null) {
-              //             //   if (
-              //             //     $(this)
-              //             //       .parent()
-              //             //       .parent()
-              //             //       .parent()
-              //             //       .parent()
-              //             //       .parent()
-              //             //       .text()
-              //             //       .includes("Vulnerabilities fixed:")
-              //             //   ) {
-              //             //     description[title] = [];
-              //             //   } else {
-              //             //     description[title] = [$(this).text()];
-              //             //   }
-              //             // } else {
-              //             //   description[title].push($(this).text());
-              //             // }
-              //           });
-              //         } else {
-              //           // // this is in charge of single bullet
-              //           // if (description[title] == null) {
-              //           //   description[title] = [];
-              //           // } else {
-              //           //   description[title].push(
-              //           //     $(this).parent().text().trim()
-              //           //   );
-              //           // }
-              //         }
-              //       });
-              //     }
-              //   });
-              // } else {
-              //   // // else statement for if (nested)
-              //   // let text = $(this).text().trim().replace(/\s\s+/g, " ");
-              //   // if (!text.includes("Read more")) {
-              //   //   if (description[title] == null) {
-              //   //     description[title] = [text];
-              //   //   } else {
-              //   //     description[title].push(text);
-              //   //   }
-              //   // }
-              // }
-              // ----------------------------------------
-              // THIS IS THE OLD PARSER END
-              // ----------------------------------------
             });
-
-          descriptionObject = parser(description);
-          console.log(descriptionObject);
 
           announcements.push({
             announced: announced,
             title: title,
             link: `https://nodejs.org${entry.attr("href")}`,
-            description: description,
+            description: parser(description),
           });
         });
 
-      announcements = announcements.slice(0, 2);
-
-      announcements.forEach((a) => {
-        request(a.link, (err, res, page) => {
-          const c = cheerio.load(page);
-
-          // This loop is ok to be synchronized, code after this block will still run as expected
-          c("#main")
-            .find("div > div")
-            .children()
-            .each(function (i, element) {
-              // Display blog title and title only
-              const blog_author = c(c(c(this).children()[0]).children()[1])
-                .text()
-                .substring(3) // remove the 'by ' string in the front
-                .split(",")[0]; // remove the date after the comma
-
-              const blog_subtitle = c(c(this).children()[1]).text().trim();
-              const available = c(c(this).children()[2]).text().trim();
-
-              // Details;
-              a["author"] = blog_author;
-              a["subtitle"] = blog_subtitle;
-              a["available"] = available;
-            });
-
-          const dbConnection = new db();
-
-          // This is a callback, you cannot do something after this function and rely on values inside async function. It will be undefined
-          dbConnection.lastEntry(function (result) {
-            const last_entry = result[0];
-            if (a.title !== last_entry.title) {
-              // console.log("update database");
-              // dbConnection.insertIntoBlog(latest_entries.slice(0, 1));
-              // sendToChannel(a);
-            } else {
-              console.log("No update necessary");
-              // sendToChannel(`No new announcements available`);
-            }
-            dbConnection.close();
-          });
-        });
-      });
+      resolve(announcements);
     }
   });
+});
+
+// const fetchChildBlogs = async (announcements) => {
+const fetchChildBlogs = async (announcements) => {
+  const promises = announcements.map(async (a, index) => {
+    const response = await got(a.link);
+    return response;
+  });
+
+  const responses = await Promise.all(promises);
+  responses.forEach((response, index) => {
+    const c = cheerio.load(response.body);
+    c("#main")
+      .find("div > div")
+      .children()
+      .each(function (i, element) {
+        // Display blog title and title only
+        const blog_author = c(c(c(this).children()[0]).children()[1])
+          .text()
+          .substring(3) // remove the 'by ' string in the front
+          .split(",")[0]; // remove the date after the comma
+        const blog_subtitle = c(c(this).children()[1]).text().trim();
+        const available = c(c(this).children()[2]).text().trim();
+        // Details;
+        announcements[index]["author"] = blog_author;
+        announcements[index]["subtitle"] = blog_subtitle;
+        announcements[index]["available"] = available;
+      });
+  });
+
+  // const dbConnection = new db();
+  // // This is a callback, you cannot do something after this function and rely on values inside async function. It will be undefined
+  // dbConnection.lastEntry(function (result) {
+  //   const last_entry = result[0];
+  //   if (a.title !== last_entry.title) {
+  //     // console.log("update database");
+  //     // dbConnection.insertIntoBlog(latest_entries.slice(0, 1));
+  //     // sendToChannel(a);
+  //   } else {
+  //     console.log("No update necessary");
+  //     // sendToChannel(`No new announcements available`);
+  //   }
+  //   dbConnection.close();
+  // });
+  // });
+  // });
+  // setTimeout(() => {
+  //   console.log(announcements);
+  // }, 2000);
+
+  return announcements;
 };
 
-module.exports = fetchBlogs;
+module.exports.fetchBlogs = fetchBlogs;
+module.exports.fetchChildBlogs = fetchChildBlogs;

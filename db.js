@@ -4,14 +4,12 @@ class db {
     this.dbconn = new this.sqlite3.Database("./db/blog.db");
   }
 
-  dropTable(){
+  dropTable() {
     let dbconnLocal = this.dbconn;
     dbconnLocal.serialize(function () {
-      dbconnLocal.run(
-        "DROP TABLE IF EXISTS blogs"
-      )
-      console.log('blogs TABLE has been dropped')
-    })
+      dbconnLocal.run("DROP TABLE IF EXISTS blogs");
+      console.log("blogs TABLE has been dropped");
+    });
   }
 
   createDatabase() {
@@ -48,14 +46,20 @@ class db {
     });
   }
 
-  lastEntry(callback) {
-    this.dbconn.all("SELECT * FROM blogs ORDER BY ID DESC LIMIT 1;", function (err, rows) {
-      if(err) {
-        console.err("Something wrong happened")
-      } else {
-        callback(rows)
-      }
-    })
+  async lastEntry() {
+    let instance = this;
+    return new Promise(function (resolve, reject) {
+      instance.dbconn.all(
+        "SELECT * from blogs ORDER BY ID DESC LIMIT 1;",
+        function (err, rows) {
+          if (err) {
+            console.log(err);
+            reject(err);
+          }
+          resolve(rows);
+        }
+      );
+    });
   }
 
   close() {

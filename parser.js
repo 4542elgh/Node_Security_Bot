@@ -1,15 +1,12 @@
-const parser = () => {
+const parser = (description) => {
   let cve = -1; // record the current cve index, this only apply to arrays with CVE as first 3 letter
   let marker = -1; //record header plain text if CVE is present. Plain text will be from index 0 to first occurance of CVE string
-  description["sublist"] = [];
-  const descriptionObject = { sublist: [], header: [], bullets: {} };
-
   let colon = -1;
   let start = -1;
-  const bulletTextObject = { word: "", bullets: [] };
+
+  const descriptionObject = { word: "", sublist: [], header: [], bullets: {} };
 
   description.forEach((item, index) => {
-    // console.log(item)
     if (item.substring(0, 3) == "CVE") {
       if (cve == -1) {
         marker = index;
@@ -35,13 +32,12 @@ const parser = () => {
     ) {
       if (colon > -1) {
         if (start == index - 1) {
-          bulletTextObject["word"] = description[colon];
-          bulletTextObject["bullets"] = [description[start]];
+          descriptionObject["word"] = description[colon];
+          descriptionObject["bullets"] = [description[start]];
         } else {
-          bulletTextObject["word"] = description[colon];
-          bulletTextObject["bullets"] = description.slice(start, index);
+          descriptionObject["word"] = description[colon];
+          descriptionObject["bullets"] = description.slice(start, index);
         }
-        console.log(bulletTextObject);
       }
       colon = index;
       start = index + 1;
@@ -54,13 +50,12 @@ const parser = () => {
       item !== "Vulnerabilities fixed:"
     ) {
       if (start == index) {
-        bulletTextObject["word"] = description[colon];
-        bulletTextObject["bullets"] = [description[start]];
+        descriptionObject["word"] = description[colon];
+        descriptionObject["bullets"] = [description[start]];
       } else {
-        bulletTextObject["word"] = description[colon];
-        bulletTextObject["bullets"] = description.slice(start, index + 1);
+        descriptionObject["word"] = description[colon];
+        descriptionObject["bullets"] = description.slice(start, index + 1);
       }
-      console.log(bulletTextObject);
       colon = -1;
       start = -1;
     }
@@ -69,6 +64,8 @@ const parser = () => {
   if (marker != -1) {
     descriptionObject["header"] = description.slice(0, marker);
   }
+
+  return descriptionObject;
 };
 
-modules.export = parser;
+module.exports = parser;

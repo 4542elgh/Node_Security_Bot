@@ -1,7 +1,7 @@
 const request = require("request");
 const cheerio = require("cheerio");
 const db = require("./db.js");
-const { DiscordAPIError, MessageEmbed } = require("discord.js");
+const parser = require("./parser.js");
 
 // Export as function
 const fetchBlogs = (sendToChannel) => {
@@ -12,7 +12,7 @@ const fetchBlogs = (sendToChannel) => {
 
       $("ul.blog-index")
         .children()
-        .each(function (i, element) {
+        .each(function () {
           const announced = $($(this).children()[0]).text();
           const entry = $($(this).children()[1]);
           const title = entry.text();
@@ -20,28 +20,9 @@ const fetchBlogs = (sendToChannel) => {
 
           $($(this).children()[2])
             .children()
-            // This remove the "Read more..." button which appear on every blog entry
+            // Remove "Read more..." button
             .slice(0, -1)
             .each(function () {
-              // This is for plain text of the description object
-
-              // let plaintext = $(this)
-              //   .contents()
-              //   .filter(function () {
-              //     return this.type === "text";
-              //   })
-              //   .text();
-
-              // if (
-              //   plaintext.includes("undefined") ||
-              //   plaintext.includes("\n") ||
-              //   plaintext == "" ||
-              //   plaintext == undefined
-              // ) {
-              // } else {
-              //   description["plaintext"].push(plaintext);
-              // }
-
               // Stores all text within post excluding first line and title
               let bullets = $(this)
                 .contents()
@@ -49,7 +30,6 @@ const fetchBlogs = (sendToChannel) => {
                 .split(/[\r\n]+/)
                 .filter((words) => words !== "");
 
-              // console.log(bullets);
               description.push(...bullets);
 
               // TODO parse strings to prepare them for message object
@@ -130,35 +110,7 @@ const fetchBlogs = (sendToChannel) => {
               // ----------------------------------------
             });
 
-          let cve = -1; // record the current cve index, this only apply to arrays with CVE as first 3 letter
-          let marker = -1; //record header plain text if CVE is present. Plain text will be from index 0 to first occurance of CVE string
-          description["sublist"] = [];
-          const descriptionObject = { sublist: [], header: [] };
-
-          description.forEach((item, index) => {
-            if (item.substring(0, 3) == "CVE") {
-              if (cve == -1) {
-                marker = index;
-              } else {
-                descriptionObject["sublist"].push(
-                  description.slice(cve, index).join("")
-                );
-              }
-
-              cve = index;
-            }
-
-            if (index == description.length - 1 && cve != -1) {
-              descriptionObject["sublist"].push(
-                description.slice(cve, description.length).join("")
-              );
-            }
-          });
-
-          if (marker != -1) {
-            descriptionObject["header"] = description.slice(0, marker);
-          }
-
+          descriptionObject = parser(description);
           console.log(descriptionObject);
 
           announcements.push({
@@ -203,17 +155,10 @@ const fetchBlogs = (sendToChannel) => {
             if (a.title !== last_entry.title) {
               // console.log("update database");
               // dbConnection.insertIntoBlog(latest_entries.slice(0, 1));
-              // const msg = new MessageEmbed()
-              //   .setTitle(a.title.trim())
-              //   .setURL(a.link.trim())
-              //   .setAuthor(a.author.trim())
-              //   .addField(a.subtitle.trim(), a.description.trim(), false)
-              //   .setTimestamp(new Date())
-              //   .setFooter("Brought to you by node.js version bot");
-              // sendToChannel(msg);
+              // sendToChannel(a);
             } else {
-              // console.log("No update necessary");
-              sendToChannel(`No new announcements available`);
+              console.log("No update necessary");
+              // sendToChannel(`No new announcements available`);
             }
             dbConnection.close();
           });
@@ -222,10 +167,5 @@ const fetchBlogs = (sendToChannel) => {
     }
   });
 };
-
-// function yellow(s){
-//   const tilde = '```'
-//   return `**${tilde}fix\n${s}\n${tilde}**`
-// }
 
 module.exports = fetchBlogs;

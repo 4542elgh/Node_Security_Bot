@@ -16,14 +16,14 @@ class db {
     let dbconnLocal = this.dbconn;
     dbconnLocal.serialize(function () {
       dbconnLocal.run(
-        "CREATE TABLE blogs (id INTEGER PRIMARY KEY AUTOINCREMENT, announced_date TEXT, title TEXT, link TEXT, description TEXT, path TEXT, author TEXT, subtitle TEXT, available TEXT)"
+        "CREATE TABLE blogs (id INTEGER PRIMARY KEY AUTOINCREMENT, announced_date TEXT, title TEXT, link TEXT, description TEXT, author TEXT, subtitle TEXT, available TEXT)"
       );
     });
   }
 
   insertIntoBlog(inputArr) {
     var stmt = this.dbconn.prepare(
-      "INSERT INTO blogs ('announced_date' , 'title' , 'link' , 'description' , 'path' , 'author' , 'subtitle' , 'available') VALUES (?,?,?,?,?,?,?,?)"
+      "INSERT INTO blogs ('announced_date' , 'title' , 'link' , 'description' , 'author' , 'subtitle' , 'available') VALUES (?,?,?,?,?,?,?,?)"
     );
     for (var i = 0; i < inputArr.length; i++) {
       let keys = Object.keys(inputArr[i]);
@@ -50,7 +50,7 @@ class db {
     let instance = this;
     return new Promise(function (resolve, reject) {
       instance.dbconn.all(
-        "SELECT * from blogs ORDER BY ID DESC LIMIT 1;",
+        "SELECT announced_date from blogs ORDER BY announced_date DESC LIMIT 1;",
         function (err, rows) {
           if (err) {
             console.log(err);
@@ -64,6 +64,20 @@ class db {
 
   close() {
     this.dbconn.close();
+  }
+
+  async insertIntoBlogNew(announcements) {
+    const that = this;
+    return new Promise(function (resolve, reject) {
+      var stmt = that.dbconn.prepare(
+        "INSERT INTO blogs ('announced_date' , 'title' , 'link' , 'description' , 'author' , 'subtitle' , 'available') VALUES (?,?,?,?,?,?,?)"
+      );
+      announcements.forEach((item) => {
+        stmt.run(item);
+      });
+
+      resolve(stmt.finalize());
+    });
   }
 }
 

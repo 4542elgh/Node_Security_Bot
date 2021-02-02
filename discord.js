@@ -10,17 +10,24 @@ class discord {
     });
   }
 
-  sendToChannel(msg) {
-    const outputMsg = new this.Discord.MessageEmbed()
-      .setTitle(msg.title.trim())
-      .setURL(msg.link.trim())
-      .setAuthor(msg.author.trim())
-      .addField(msg.subtitle.trim(), msg.description.trim(), false)
-      .setTimestamp(new Date())
-      .setFooter("Brought to you by node.js blog bot");
+  sendToChannel(msgArray) {
+    const that = this;
+    msgArray.forEach((msg) => {
+      const outputMsg = new that.Discord.MessageEmbed()
+        .setTitle(msg.title.trim())
+        .setURL(msg.link.trim())
+        .setAuthor(msg.author.trim())
+        // .addField(msg.subtitle.trim(), msg.description.trim(), false)
+        .addField(msg.subtitle.trim())
+        .setTimestamp(new Date())
+        .setFooter("Brought to you by node.js blog bot");
 
-    this.client.channels.fetch(`${process.env.CHANNEL_ID}`).then((channel) => {
-      channel.send(outputMsg);
+      that.client.channels
+        .fetch(`${process.env.CHANNEL_ID}`)
+        .then((channel) => {
+          console.log(channel);
+          channel.send(outputMsg);
+        });
     });
   }
 }

@@ -3,6 +3,10 @@ const crawler = require("./crawler.js");
 const discord = require("./discord.js");
 const scheduler = require("./scheduler.js");
 const db = require("./db.js");
+const util = require("./util.js");
+const filterAnnouncements = require("./util.js");
+
+const discordObj = new discord();
 
 const main = async () => {
   const announcements = await crawler.fetchBlogs;
@@ -10,17 +14,22 @@ const main = async () => {
   // console.log(announcementWithAuthor);
 
   const DBObj = new db();
+
   const lastEntry = await DBObj.lastEntry();
 
-  let counter = -1;
-  for (var i = 0; i < announcementWithAuthor.length; i++) {
-    if (announcementWithAuthor.title == lastEntry[0].title) {
-      counter = i;
-      break;
-    }
+  const announcementsMissing = util.filterAnnouncements(
+    lastEntry,
+    announcementWithAuthor
+  );
+
+  const dbReady = util.announcementDBInsert(announcementsMissing);
+
+  if (announcementsMissing.length != 0) {
+    await DBObj.insertIntoBlogNew(dbReady);
+    discordObj.sendToChannel(announcementsMissing);
   }
 
-  announcementWithAuthor.slice(0, counter);
+  DBObj.close();
 };
 
 main();

@@ -15,7 +15,8 @@ const fetchBlogs = new Promise(function executor(resolve) {
       $("ul.blog-index")
         .children()
         .each(function () {
-          const announced = $($(this).children()[0]).text();
+          // Datetime attribute is more precise
+          const announced = $($(this).children()[0]).attr("datetime");
           const entry = $($(this).children()[1]);
           const title = entry.text();
           let description = [];

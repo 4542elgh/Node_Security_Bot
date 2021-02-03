@@ -17,6 +17,7 @@ class discord {
         .setTitle(msg.title.trim())
         .setURL(msg.link.trim())
         .setAuthor(msg.author.trim())
+        .setThumbnail("./img/nodejs-logo.png")
         // .addField(msg.subtitle.trim(), msg.description.trim(), false)
         .addField(msg.subtitle.trim())
         .setTimestamp(new Date())

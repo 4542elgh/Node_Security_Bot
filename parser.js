@@ -4,7 +4,7 @@ const parser = (description) => {
   let colon = -1;
   let start = -1;
 
-  const descriptionObject = { word: "", sublist: [], header: [], bullets: {} };
+  const descriptionObject = { word: [], sublist: [], header: [], bullets: [] };
 
   description.forEach((item, index) => {
     if (item.substring(0, 3) == "CVE") {
@@ -25,37 +25,45 @@ const parser = (description) => {
       );
     }
 
+    // For bullet list with colon
     // Getting text if word ends with colon excluding "Vulnerabilities fixed"
     if (
       item.substring(item.length - 1) === ":" &&
       item !== "Vulnerabilities fixed:"
     ) {
+      // update colon and start index after 1st iteration
       if (colon > -1) {
         if (start == index - 1) {
-          descriptionObject["word"] = description[colon];
-          descriptionObject["bullets"] = [description[start]];
+          descriptionObject["word"].push([description[colon]]);
+          descriptionObject["bullets"].push([description[start]]);
         } else {
-          descriptionObject["word"] = description[colon];
-          descriptionObject["bullets"] = description.slice(start, index);
+          descriptionObject["word"].push([description[colon]]);
+          descriptionObject["bullets"].push(description.slice(start, index));
         }
       }
+
+      // record which element have colon
       colon = index;
+      // whatever comes next, will be the start of the bullet array
       start = index + 1;
     }
 
-    // end of string
+    // reach end of one single blog's elements array and a colon is found
     if (
       description.length - 1 == index &&
       colon > -1 &&
       item !== "Vulnerabilities fixed:"
     ) {
+      // If there is only one bullet, and its located at the last element
       if (start == index) {
-        descriptionObject["word"] = description[colon];
-        descriptionObject["bullets"] = [description[start]];
+        descriptionObject["word"].push([description[colon]]);
+        descriptionObject["bullets"].push([description[start]]);
       } else {
-        descriptionObject["word"] = description[colon];
-        descriptionObject["bullets"] = description.slice(start, index + 1);
+        // Multiple bullets till the last element
+        descriptionObject["word"].push([description[colon]]);
+        descriptionObject["bullets"].push(description.slice(start, index + 1));
       }
+
       colon = -1;
       start = -1;
     }

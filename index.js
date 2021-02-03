@@ -25,8 +25,16 @@ const main = async () => {
   const dbReady = util.announcementDBInsert(announcementsMissing);
 
   if (announcementsMissing.length != 0) {
-    await DBObj.insertIntoBlogNew(dbReady);
-    discordObj.sendToChannel(announcementsMissing);
+    // await DBObj.insertIntoBlogNew(dbReady);
+    // discordObj.sendToChannel(announcementsMissing);
+
+    // announcementsMissing.forEach((item) => {
+    //   console.log(item.description.word);
+    //   console.log(item.description.bullets);
+    // });
+
+    let discordDescription = util.formatDescription(announcementsMissing);
+    console.log(discordDescription);
   }
 
   DBObj.close();

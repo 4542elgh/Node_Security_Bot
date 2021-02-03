@@ -34,5 +34,43 @@ const announcementDBInsert = (newAnnouncements) => {
   return announcementIntoDB;
 };
 
+const formatDescription = (missingAnnouncements) => {
+  const descriptions = [];
+
+  missingAnnouncements.forEach((item, index) => {
+    // console.log(item);
+    const description = item.description;
+    const temp = [];
+    if (description.header.length != 0) {
+      temp.push(...description.header);
+    }
+    if (description.bullets.length != 0) {
+      temp.push(
+        ...description.bullets
+          .flat()
+          .map((item) => {
+            return "- " + item;
+          })
+          .slice(0, 4)
+      );
+    } else if (description.sublist.length != 0) {
+      temp.push(
+        ...description.sublist
+          .map((item) => {
+            return "- " + item;
+          })
+          .slice(0, 1)
+      );
+    }
+
+    temp.push("more...");
+
+    descriptions.push(temp);
+  });
+
+  return descriptions;
+};
+
 module.exports.filterAnnouncements = filterAnnouncements;
 module.exports.announcementDBInsert = announcementDBInsert;
+module.exports.formatDescription = formatDescription;

@@ -77,26 +77,6 @@ const fetchChildBlogs = async (announcements) => {
       });
   });
 
-  // const dbConnection = new db();
-  // // This is a callback, you cannot do something after this function and rely on values inside async function. It will be undefined
-  // dbConnection.lastEntry(function (result) {
-  //   const last_entry = result[0];
-  //   if (a.title !== last_entry.title) {
-  //     // console.log("update database");
-  //     // dbConnection.insertIntoBlog(latest_entries.slice(0, 1));
-  //     // sendToChannel(a);
-  //   } else {
-  //     console.log("No update necessary");
-  //     // sendToChannel(`No new announcements available`);
-  //   }
-  //   dbConnection.close();
-  // });
-  // });
-  // });
-  // setTimeout(() => {
-  //   console.log(announcements);
-  // }, 2000);
-
   return announcements;
 };
 

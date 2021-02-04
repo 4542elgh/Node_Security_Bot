@@ -10,23 +10,32 @@ class discord {
     });
   }
 
-  sendToChannel(msgArray) {
-    const that = this;
+  sendToChannel(msgArray, description) {
     msgArray.forEach((msg) => {
-      const outputMsg = new that.Discord.MessageEmbed()
+      const outputMsg = new this.Discord.MessageEmbed()
         .setTitle(msg.title.trim())
         .setURL(msg.link.trim())
+        .setDescription(
+          description.flat().join("\n\n") +
+            "\n\n" +
+            "[more...](" +
+            msg.link.trim() +
+            ")"
+        )
         .setAuthor(msg.author.trim())
-        .setThumbnail("./img/nodejs-logo.png")
+        // .setThumbnail("./img/nodejs-logo.png")
+        .setThumbnail(
+          "https://firebearstudio.com/blog/wp-content/uploads/2015/10/Node-e1443953851722.png"
+        )
+
         // .addField(msg.subtitle.trim(), msg.description.trim(), false)
-        .addField(msg.subtitle.trim())
+        // .addField(msg.subtitle.trim(), ...description)
         .setTimestamp(new Date())
         .setFooter("Brought to you by node.js blog bot");
 
-      that.client.channels
+      this.client.channels
         .fetch(`${process.env.CHANNEL_ID}`)
         .then((channel) => {
-          console.log(channel);
           channel.send(outputMsg);
         });
     });

@@ -6,7 +6,17 @@ const parser = (description) => {
 
   const descriptionObject = { word: [], sublist: [], header: [], bullets: [] };
 
+  // This part need some serious rework
   description.forEach((item, index) => {
+    if (
+      item.indexOf("[") != -1 &&
+      item.indexOf("]") - item.indexOf("[") == 11 &&
+      start == -1 &&
+      colon == -1
+    ) {
+      descriptionObject.bullets.push(item);
+    }
+
     if (item.substring(0, 3) == "CVE") {
       if (cve == -1) {
         marker = index;
@@ -46,6 +56,17 @@ const parser = (description) => {
       colon = index;
       // whatever comes next, will be the start of the bullet array
       start = index + 1;
+    }
+
+    if (
+      item.substring(0, 3) != "CVE" &&
+      item.substring(item.length - 1) != ":" &&
+      item.indexOf("Read more...") == -1 &&
+      item.indexOf("]") - item.indexOf("[") != 11 &&
+      colon == -1 &&
+      start == -1
+    ) {
+      descriptionObject.header.push(item);
     }
 
     // reach end of one single blog's elements array and a colon is found

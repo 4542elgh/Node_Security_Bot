@@ -45,14 +45,35 @@ const formatDescription = (missingAnnouncements) => {
       temp.push(...description.header);
     }
     if (description.bullets.length != 0) {
-      temp.push(
-        ...description.bullets
-          .flat()
-          .map((item) => {
-            return "- " + item;
-          })
-          .slice(0, 4)
-      );
+      let bullets = [];
+      for (var i = 0; i < description.bullets.length; i++) {
+        if (description.word[i] != undefined) {
+          bullets.push(...description.word[i]);
+        }
+
+        if (Array.isArray(description.bullets[i])) {
+          for (var j = 0; j < description.bullets[i].length; j++) {
+            if (bullets.length < 4) {
+              bullets.push("- " + description.bullets[i][j]);
+            } else {
+              break;
+            }
+          }
+          if (
+            bullets.length == 4 &&
+            bullets[3].substring(bullets[3].length - 1) != ":"
+          ) {
+            temp.push(...bullets);
+            break;
+          } else {
+            temp.push(...bullets.slice(0, 3));
+            break;
+          }
+        } else {
+          temp.push(...description.bullets.slice(0, 4));
+          break;
+        }
+      }
     } else if (description.sublist.length != 0) {
       temp.push(
         ...description.sublist
@@ -62,8 +83,6 @@ const formatDescription = (missingAnnouncements) => {
           .slice(0, 1)
       );
     }
-
-    temp.push("more...");
 
     descriptions.push(temp);
   });

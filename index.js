@@ -26,15 +26,13 @@ const main = async () => {
 
   if (announcementsMissing.length != 0) {
     // await DBObj.insertIntoBlogNew(dbReady);
-    // discordObj.sendToChannel(announcementsMissing);
-
-    // announcementsMissing.forEach((item) => {
-    //   console.log(item.description.word);
-    //   console.log(item.description.bullets);
-    // });
-
     let discordDescription = util.formatDescription(announcementsMissing);
-    console.log(discordDescription);
+    discordObj.sendToChannel(
+      announcementsMissing.slice(0, 1),
+      discordDescription.slice(0, 1)
+    );
+
+    // console.log(discordDescription);
   }
 
   DBObj.close();

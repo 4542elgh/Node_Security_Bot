@@ -1,7 +1,8 @@
 const request = require("request");
 const cheerio = require("cheerio");
 const db = require("./db.js");
-const parser = require("./parser.js");
+// const parser = require("./parser.js");
+const parser = require("./parser_2.js");
 const got = require("got");
 
 // Export as function

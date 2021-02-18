@@ -93,7 +93,7 @@ const parser = (description) => {
   if (marker != -1) {
     descriptionObject["header"] = description.slice(0, marker);
   }
-
+  console.log(descriptionObject)
   return descriptionObject;
 };
 
